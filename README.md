@@ -4,6 +4,8 @@ This is my Python project for testing a simple Apple stock trading strategy.
 It downloads AAPL price data, runs a normal backtest, saves the results, and
 then checks the same strategy with a walk forward test.
 
+This is just a demo project.
+
 The strategy uses the 200 day moving average. It buys AAPL when the price moves
 above the moving average and closes the position when the price moves below it.
 
