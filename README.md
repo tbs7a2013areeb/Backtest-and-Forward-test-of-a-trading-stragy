@@ -87,8 +87,10 @@ The normal backtest runs the strategy on the full AAPL history in the dataset.
 This is useful because it shows the full result, the trade count, drawdown,
 commission, and equity curve.
 
-A backtest alone is not enough because one long history can look good because
-of a few strong years. That is why the project also does a walk forward test.
+However, a backtest alone is not enough because results can be influenced by a
+few strong years or overfitting to past data. To reduce this risk, the project
+also uses a walk forward test to check performance across different time
+periods.
 
 ## Walk Forward Test
 
