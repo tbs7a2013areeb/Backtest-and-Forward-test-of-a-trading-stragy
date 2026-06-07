@@ -1,15 +1,10 @@
 # Trading Backtester
 
-This Python project evaluates a simple Apple stock trading strategy. It
-downloads AAPL daily price data, runs a full historical backtest, saves the
-results, and then applies walk forward optimization for out of sample testing.
+This Python project evaluates a long only Apple stock trading strategy. It uses
+daily AAPL price data, runs a full historical backtest, saves the results, and
+then applies a walk forward out of sample test.
 
 This repository is a demo project.
-
-The full backtest uses a 200 day simple moving average. The walk forward test
-selects the best moving average below 200 days for each out of sample period.
-The strategy enters a long AAPL position when price crosses above the moving
-average and exits when price crosses below it.
 
 The project uses `backtesting.py`, `yfinance`, `pandas`, `numpy`, and
 `matplotlib`.
@@ -47,7 +42,7 @@ python3 main.py
 ```
 
 The script downloads AAPL daily data from 2014 until the latest available date.
-It runs the full backtest, runs the walk forward optimization test, prints the
+It runs the full backtest, runs the walk forward out of sample test, prints the
 results, and saves charts and tables in `output/`.
 
 ## Settings
@@ -59,10 +54,9 @@ Most settings are in `src/config.py`.
 3. Commission rate is `COMMISSION_RATE = 0.0008`.
 4. Minimum commission per order is `MIN_COMMISSION = 1.00`.
 5. Default SMA window is `DEFAULT_MA_WINDOW = 200`.
-6. Walk forward optimization windows are `120, 140, 160, 180, 190`.
-7. In sample reference window is `TRAINING_WINDOW_YEARS = 3`.
-8. Out of sample test window is `TESTING_WINDOW_YEARS = 1`.
-9. Data timeframe is `TIMEFRAME = "1d"`.
+6. In sample reference window is `TRAINING_WINDOW_YEARS = 3`.
+7. Out of sample test window is `TESTING_WINDOW_YEARS = 1`.
+8. Data timeframe is `TIMEFRAME = "1d"`.
 
 The commission rule is:
 
@@ -77,8 +71,11 @@ the trade value and 1 USD.
 
 The default strategy is in `src/strategies.py`.
 
-The strategy is a long only SMA crossover system. It does not use short
-selling.
+The strategy is a long only SMA crossover system using a fixed 200 day simple
+moving average. The 200 day SMA is the average closing price over the last 200
+trading days and is used as a trend filter. When AAPL trades above this
+average, the trend is treated as stronger. When it trades below this average,
+the trend is treated as weaker. The strategy does not use short selling.
 
 1. Enter a long position when there is no open trade and price crosses above the SMA.
 2. If the first valid bar is already above the SMA, the strategy can enter once.
@@ -91,17 +88,15 @@ The full backtest evaluates the strategy on the complete AAPL history in the
 dataset. This provides the total return, trade count, drawdown, transaction
 cost impact, and equity curve.
 
-However, a backtest alone is not enough because results can be influenced by a
-few strong market regimes or overfitting to historical data. To reduce this
-risk, the project also uses walk forward testing to evaluate performance across
-separate out of sample periods.
+A single full historical backtest can be influenced by specific market regimes.
+The walk forward test below checks whether performance is more consistent
+across separate out of sample periods.
 
 ## Walk Forward Test
 
-The walk forward test is used to reduce overfitting risk and check whether the
-strategy is robust across different market regimes. Instead of testing only one
-continuous historical period, the dataset is split into rolling in sample and
-out of sample periods.
+The walk forward test splits the dataset into rolling in sample reference
+periods and out of sample test periods. In this project, the in sample period is
+used as prior price history for the 200 day SMA, not for parameter selection.
 
 The rolling split is:
 
@@ -117,17 +112,24 @@ Example:
 2016 to 2018 is the in sample period, then 2019 is tested out of sample.
 ```
 
-In each in sample period, the code optimizes the SMA window. It tests these
-candidate windows, all below 200 days:
+The same fixed 200 day SMA is used in every out of sample period. This checks
+whether the original strategy rule is stable across time without selecting
+parameters again from each reference period.
+
+Walk forward optimization is different. It would test several possible SMA
+windows inside each in sample period, choose the best performing window, and
+then test that selected parameter on the next out of sample year.
+
+The difference is:
 
 ```text
-120, 140, 160, 180, 190
-```
+Walk forward test:
+Uses the same fixed parameter in every test period.
 
-The SMA window with the highest in sample return is selected. That selected
-parameter is then applied to the next out of sample year. This tests whether the
-optimized parameter can generalize to unseen data instead of only performing
-well on the period used for selection.
+Walk forward optimization:
+Selects the best parameter from the in sample period, then tests that selected
+parameter out of sample.
+```
 
 ## Main Metrics
 

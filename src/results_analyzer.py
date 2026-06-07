@@ -204,7 +204,6 @@ class ResultsAnalyzer:
             "testing_start",
             "testing_end",
             "moving_average_window",
-            "training_return_pct",
             "test_return_pct",
             "win_rate_pct",
             "max_drawdown_pct",

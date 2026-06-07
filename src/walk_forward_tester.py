@@ -18,7 +18,6 @@ from .config import (
     OUTPUT_DIR,
     TESTING_WINDOW_YEARS,
     TRAINING_WINDOW_YEARS,
-    WALK_FORWARD_OPTIMIZATION_WINDOWS,
 )
 from .strategies import MovingAverageCrossStrategy
 
@@ -38,7 +37,6 @@ class WalkForwardTester:
     data: pd.DataFrame
     strategy: Type[Strategy] = MovingAverageCrossStrategy
     moving_average_window: int = DEFAULT_MA_WINDOW
-    optimization_windows: tuple[int, ...] = WALK_FORWARD_OPTIMIZATION_WINDOWS
     training_window_years: int = TRAINING_WINDOW_YEARS
     testing_window_years: int = TESTING_WINDOW_YEARS
     initial_cash: float = INITIAL_CASH
@@ -46,17 +44,6 @@ class WalkForwardTester:
 
     def __post_init__(self) -> None:
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.optimization_windows = tuple(
-            sorted(
-                {
-                    int(window)
-                    for window in self.optimization_windows
-                    if 1 < int(window) < int(self.moving_average_window)
-                }
-            )
-        )
-        if not self.optimization_windows:
-            raise ValueError("Add at least one optimization window below the default MA.")
 
     def run(self) -> WalkForwardResult:
         """Run all walk forward periods."""
@@ -78,19 +65,12 @@ class WalkForwardTester:
             if self._should_skip(reference_data, testing_data, period_data):
                 continue
 
-            best_window, training_return_pct = self._best_window(reference_data)
-            if best_window is None:
-                continue
-
             runner = BacktestRunner(
                 data=period_data,
                 strategy=self.strategy,
                 initial_cash=self.initial_cash,
             )
-            stats = runner.run(
-                moving_average_window=best_window,
-                start_trading_at=testing_data.index.min(),
-            )
+            stats = runner.run(moving_average_window=self.moving_average_window)
             equity_curve = stats.get("_equity_curve")
             trades = stats.get("_trades")
 
@@ -123,8 +103,7 @@ class WalkForwardTester:
                     "reference_end": reference_data.index.max().date().isoformat(),
                     "testing_start": testing_data.index.min().date().isoformat(),
                     "testing_end": testing_data.index.max().date().isoformat(),
-                    "moving_average_window": int(best_window),
-                    "training_return_pct": training_return_pct,
+                    "moving_average_window": int(self.moving_average_window),
                     "test_return_pct": test_return_pct,
                     "win_rate_pct": self._win_rate(test_trades),
                     "max_drawdown_pct": self._max_drawdown_pct(test_equity),
@@ -167,48 +146,13 @@ class WalkForwardTester:
         """Skip periods that do not have enough data."""
         if reference_data.empty or testing_data.empty or period_data.empty:
             return True
-        if len(reference_data) < max(self.optimization_windows):
+        if len(reference_data) < int(self.moving_average_window):
             return True
-        if len(testing_data) < min(self.optimization_windows):
+        if len(testing_data) < int(self.moving_average_window):
             return True
-        if len(period_data) < max(self.optimization_windows) + 2:
+        if len(period_data) < int(self.moving_average_window) + 2:
             return True
         return False
-
-    def _best_window(self, reference_data: pd.DataFrame) -> tuple[Optional[int], float]:
-        """Choose the best MA from the reference period."""
-        best_window: Optional[int] = None
-        best_return = -np.inf
-
-        for window in self.optimization_windows:
-            if len(reference_data) < int(window) + 2:
-                continue
-
-            runner = BacktestRunner(
-                data=reference_data,
-                strategy=self.strategy,
-                initial_cash=self.initial_cash,
-            )
-            try:
-                stats = runner.run(moving_average_window=int(window))
-            except Exception:
-                continue
-
-            training_return = self._to_float(stats.get("Return [%]"))
-            if np.isnan(training_return):
-                continue
-
-            is_better = training_return > best_return
-            is_tie_with_higher_window = (
-                np.isclose(training_return, best_return)
-                and best_window is not None
-                and int(window) > int(best_window)
-            )
-            if is_better or is_tie_with_higher_window:
-                best_window = int(window)
-                best_return = float(training_return)
-
-        return best_window, best_return
 
     def _test_period_trades(
         self,
@@ -240,12 +184,6 @@ class WalkForwardTester:
             return np.nan
         drawdown = equity / equity.cummax() - 1.0
         return float(drawdown.min() * 100)
-
-    def _to_float(self, value: object) -> float:
-        try:
-            return float(value)
-        except (TypeError, ValueError):
-            return np.nan
 
     def _combine_equity_segments(self, segments: list[pd.Series]) -> pd.DataFrame:
         if not segments:
@@ -286,7 +224,7 @@ class WalkForwardTester:
             color="#9467bd",
             linewidth=1.8,
         )
-        ax.set_title("Walk forward optimization")
+        ax.set_title("Walk Forward Test")
         ax.set_xlabel("Date")
         ax.set_ylabel("Scaled Equity [$]")
         ax.grid(True, alpha=0.25)
