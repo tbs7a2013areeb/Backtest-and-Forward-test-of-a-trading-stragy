@@ -64,9 +64,6 @@ The commission rule is:
 commission = max(1.00, abs(order_size) * price * 0.0008)
 ```
 
-This means each entry and exit pays the larger value between 0.08 percent of
-the trade value and 1 USD.
-
 ## Strategy
 
 The default strategy is in `src/strategies.py`.
