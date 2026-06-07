@@ -53,7 +53,11 @@ class BacktestRunner:
 
         return commission
 
-    def run(self, moving_average_window: int = DEFAULT_MA_WINDOW) -> pd.Series:
+    def run(
+        self,
+        moving_average_window: int = DEFAULT_MA_WINDOW,
+        start_trading_at: object = None,
+    ) -> pd.Series:
         """Run the backtest."""
         try:
             self.backtest = Backtest(
@@ -65,7 +69,10 @@ class BacktestRunner:
                 exclusive_orders=bool(self.exclusive_orders),
                 finalize_trades=bool(self.finalize_trades),
             )
-            self.results = self.backtest.run(moving_average_window=int(moving_average_window))
+            self.results = self.backtest.run(
+                moving_average_window=int(moving_average_window),
+                start_trading_at=start_trading_at,
+            )
         except Exception as exc:
             raise BacktestRunError(f"Backtest failed: {exc}") from exc
 

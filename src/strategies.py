@@ -23,6 +23,7 @@ class MovingAverageCrossStrategy(Strategy):
     """Long only moving average strategy."""
 
     moving_average_window = DEFAULT_MA_WINDOW
+    start_trading_at = None
 
     def init(self) -> None:
         """Set up the moving average."""
@@ -42,6 +43,11 @@ class MovingAverageCrossStrategy(Strategy):
 
         if np.isnan(current_ma):
             return
+
+        if self.start_trading_at is not None:
+            current_time = pd.Timestamp(self.data.index[-1])
+            if current_time < pd.Timestamp(self.start_trading_at):
+                return
 
         previous_close = float(self.data.Close[-2]) if len(self.data.Close) > 1 else np.nan
         previous_ma = float(self.moving_average[-2]) if len(self.moving_average) > 1 else np.nan

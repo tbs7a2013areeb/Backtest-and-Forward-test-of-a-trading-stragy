@@ -6,8 +6,10 @@ then checks the same strategy with a walk forward test.
 
 This is just a demo project.
 
-The strategy uses the 200 day moving average. It buys AAPL when the price moves
-above the moving average and closes the position when the price moves below it.
+The normal backtest uses the 200 day moving average. The walk forward test
+chooses the best moving average under 200 days for each test period. The rule
+buys AAPL when the price moves above the moving average and closes the position
+when the price moves below it.
 
 The project uses `backtesting.py`, `yfinance`, `pandas`, `numpy`, and
 `matplotlib`.
@@ -57,9 +59,10 @@ Most settings are in `src/config.py`.
 3. Commission rate is `COMMISSION_RATE = 0.0008`.
 4. Minimum commission is `MIN_COMMISSION = 1.00`.
 5. Moving average window is `DEFAULT_MA_WINDOW = 200`.
-6. Reference window is `TRAINING_WINDOW_YEARS = 3`.
-7. Test window is `TESTING_WINDOW_YEARS = 1`.
-8. Timeframe is `TIMEFRAME = "1d"`.
+6. Walk forward optimization windows are `120, 140, 160, 180, 190`.
+7. Reference window is `TRAINING_WINDOW_YEARS = 3`.
+8. Test window is `TESTING_WINDOW_YEARS = 1`.
+9. Timeframe is `TIMEFRAME = "1d"`.
 
 The commission rule is:
 
@@ -94,14 +97,35 @@ periods.
 
 ## Walk Forward Test
 
-The walk forward test uses a rolling setup.
+The walk forward test is used because one normal backtest can look strong
+because of a few good years. It can also fit too closely to old data. The walk
+forward test gives a more realistic check by testing the strategy on the next
+period after only using data from the past.
+
+The dataset is split into rolling parts:
 
 1. Use 3 years as the reference period.
-2. Test the next 1 year.
-3. Move the window forward and repeat.
+2. Use the next 1 year as the test period.
+3. Move the window forward by 1 year and repeat.
 
-This checks if the same rule works across different future like periods instead
-of only looking good in one full backtest.
+Example:
+
+```text
+2014 to 2016 is used as the reference period, then 2017 is tested.
+2015 to 2017 is used as the reference period, then 2018 is tested.
+2016 to 2018 is used as the reference period, then 2019 is tested.
+```
+
+In each reference period, the code optimizes the moving average window. It tests
+these moving averages, all under 200 days:
+
+```text
+120, 140, 160, 180, 190
+```
+
+The moving average with the best return in the reference period is selected.
+That selected moving average is then used on the next test year. This checks if
+the optimized setting still works on new unseen data.
 
 ## Main Metrics
 

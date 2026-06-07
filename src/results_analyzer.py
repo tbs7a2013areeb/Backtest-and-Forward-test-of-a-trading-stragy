@@ -204,13 +204,15 @@ class ResultsAnalyzer:
             "testing_start",
             "testing_end",
             "moving_average_window",
+            "training_return_pct",
             "test_return_pct",
             "win_rate_pct",
             "max_drawdown_pct",
             "num_trades",
             "final_equity",
         ]
-        print(summary.loc[:, display_columns].to_string(index=False))
+        available_columns = [column for column in display_columns if column in summary.columns]
+        print(summary.loc[:, available_columns].to_string(index=False))
 
     def print_comparison(self, normal_stats: pd.Series, walk_forward_summary: pd.DataFrame) -> None:
         """Print the backtest vs walk forward comparison."""
