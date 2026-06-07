@@ -241,23 +241,6 @@ class ResultsAnalyzer:
         print(f"Average OOS period return:    {average_period_return:.2f}%")
         print(f"Positive OOS periods:         {positive_period_rate:.2f}%")
 
-        if compounded_return < normal_return:
-            print("Interpretation: the full-history backtest performed better than the out-of-sample walk-forward periods.")
-        else:
-            print("Interpretation: the walk-forward periods matched or exceeded the full-history backtest return.")
-
-        dispersion = walk_forward_summary["test_return_pct"].std(ddof=0)
-        if not np.isnan(dispersion):
-            if dispersion > abs(average_period_return) * 1.5:
-                print("Consistency: period returns vary widely, so the strategy may depend on specific market regimes.")
-            else:
-                print("Consistency: period returns are relatively stable compared with their average.")
-
-        print(
-            "Commission note: every entry and exit uses the configured callable fee, "
-            "so both normal and walk-forward results are net of the 0.08% / $1 minimum trade-side cost."
-        )
-
     def save_comparison(self, normal_stats: pd.Series, walk_forward_summary: pd.DataFrame) -> Path:
         """Save the comparison values."""
         path = self.output_dir / "comparison_summary.csv"
