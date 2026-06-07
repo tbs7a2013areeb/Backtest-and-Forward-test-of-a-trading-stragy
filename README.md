@@ -4,7 +4,7 @@ This Python project evaluates a long only Apple stock trading strategy. It uses
 daily AAPL price data, runs a full historical backtest, saves the results, and
 then applies a walk forward out of sample test.
 
-This repository is a demo project.
+This repository is a **SIMPLE** demo project.
 
 The project uses `backtesting.py`, `yfinance`, `pandas`, `numpy`, and
 `matplotlib`.
@@ -42,7 +42,7 @@ python3 main.py
 ```
 
 The script downloads AAPL daily data from 2014 until the latest available date.
-It runs the full backtest, runs the walk forward out of sample test, prints the
+It runs the full backtest, runs the walk forward test, prints the
 results, and saves charts and tables in `output/`.
 
 ## Settings
@@ -63,6 +63,7 @@ The commission rule is:
 ```python
 commission = max(1.00, abs(order_size) * price * 0.0008)
 ```
+This rule comes from Saxo, as they charge the greater of USD 1 or 0.08% of the total trade value.
 
 ## Strategy
 
@@ -85,48 +86,33 @@ The full backtest evaluates the strategy on the complete AAPL history in the
 dataset. This provides the total return, trade count, drawdown, transaction
 cost impact, and equity curve.
 
-A single full historical backtest can be influenced by specific market regimes.
-The walk forward test below checks whether performance is more consistent
-across separate out of sample periods.
+
+Backtests are useful for evaluating how a strategy would have performed on historical data, but they have important limitations. 
+A strong backtest does not guarantee strong future performance because market conditions change over time.
+One major issue is overfitting. A strategy can be tuned too closely to past data, making it look profitable historically while failing in live trading.
+Because of these limitations, we will use a walk forward test. Walk forward testing evaluates the strategy on unseen data after training or selecting parameters on earlier data. 
+This gives a more realistic view of how the strategy may perform in live market conditions and helps reduce the risk of relying on an overfit backtest.
+
+
 
 ## Walk Forward Test
 
-The walk forward test splits the dataset into rolling in sample reference
-periods and out of sample test periods. In this project, the in sample period is
-used as prior price history for the 200 day SMA, not for parameter selection.
+The walk forward test splits the dataset into rolling in sample and out of sample periods.
 
-The rolling split is:
+In this project, the in sample period is 3 years of previous AAPL price data. This gives the strategy enough historical context to calculate the 200 day SMA before the test period begins. 
+The next 1 year is then used as the out of sample test period, where the strategy is evaluated on data it has not been tested on in that window.
 
-1. Use 3 years as the in sample reference period.
-2. Use the next 1 year as the out of sample test period.
-3. Move the window forward by 1 year and repeat.
-
-Example:
+The process moves forward one year at a time:
 
 ```text
-2014 to 2016 is the in sample period, then 2017 is tested out of sample.
-2015 to 2017 is the in sample period, then 2018 is tested out of sample.
-2016 to 2018 is the in sample period, then 2019 is tested out of sample.
+2014 to 2016 is used as the in sample period, then 2017 is tested out of sample.
+2015 to 2017 is used as the in sample period, then 2018 is tested out of sample.
+2016 to 2018 is used as the in sample period, then 2019 is tested out of sample.
 ```
 
-The same fixed 200 day SMA is used in every out of sample period. This checks
-whether the original strategy rule is stable across time without selecting
-parameters again from each reference period.
+As this is a **simple** demo, I want to keep it simple. That is why I have chosen to conduct only a Walk Forward Test and not a Walk Forward Analysis, which also includes Walk Forward Optimization.
 
-Walk forward optimization is different. It would test several possible SMA
-windows inside each in sample period, choose the best performing window, and
-then test that selected parameter on the next out of sample year.
 
-The difference is:
-
-```text
-Walk forward test:
-Uses the same fixed parameter in every test period.
-
-Walk forward optimization:
-Selects the best parameter from the in sample period, then tests that selected
-parameter out of sample.
-```
 
 ## Main Metrics
 
