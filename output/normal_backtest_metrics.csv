@@ -1,33 +1,33 @@
 metric,value
 Start,2014-01-02 00:00:00
-End,2026-06-05 00:00:00
-Duration,4537 days 00:00:00
-Exposure Time [%],71.7120
-Equity Final [$],"65,170.5823"
+End,2026-06-08 00:00:00
+Duration,4540 days 00:00:00
+Exposure Time [%],71.7210
+Equity Final [$],"64,358.2196"
 Equity Peak [$],"66,052.3502"
-Commissions [$],"1,404.3595"
-Return [%],551.7058
-Buy & Hold Return [%],"1,177.1244"
-Return (Ann.) [%],16.3175
-Volatility (Ann.) [%],25.5161
-CAGR [%],10.9724
-Sharpe Ratio,0.6395
-Sortino Ratio,1.0945
-Calmar Ratio,0.4623
-Alpha [%],-157.4818
-Beta,0.6025
+Commissions [$],"1,403.7091"
+Return [%],543.5822
+Buy & Hold Return [%],"1,202.7218"
+Return (Ann.) [%],16.1943
+Volatility (Ann.) [%],25.4888
+CAGR [%],10.8876
+Sharpe Ratio,0.6353
+Sortino Ratio,1.0861
+Calmar Ratio,0.4588
+Alpha [%],-180.9231
+Beta,0.6024
 Max. Drawdown [%],-35.2971
-Avg. Drawdown [%],-4.2043
+Avg. Drawdown [%],-4.2163
 Max. Drawdown Duration,924 days 00:00:00
 Avg. Drawdown Duration,50 days 00:00:00
 # Trades,29
 Win Rate [%],44.8276
 Best Trade [%],86.8698
 Worst Trade [%],-6.0233
-Avg. Trade [%],6.7974
+Avg. Trade [%],6.7510
 Max. Trade Duration,557 days 00:00:00
 Avg. Trade Duration,111 days 00:00:00
-Profit Factor,6.1360
-Expectancy [%],8.1878
-SQN,2.3096
-Kelly Criterion,0.3615
+Profit Factor,6.1029
+Expectancy [%],8.1350
+SQN,2.3085
+Kelly Criterion,0.3605
