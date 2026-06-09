@@ -1,6 +1,6 @@
 # Security Policy
 
-This is a demo project for backtesting a stock trading strategy.
+This is a demo project!!!!!
 
 It does not handle user accounts, passwords, payments, or private customer data.
 It also does not need API keys because the stock data is downloaded from
