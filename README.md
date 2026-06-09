@@ -66,7 +66,7 @@ The commission rule is:
 ```python
 commission = max(1.00, abs(order_size) * price * 0.0008)
 ```
-This rule comes from Saxo, as they charge the greater of USD 1 or 0.08% of the total trade value.
+This rule is based on Saxo’s commission structure, where the commission is the greater of USD 1 or 0.08% of the total trade value. Other trading costs, such as slippage and spread, have been excluded to keep the demo simple and easy to understand.
 
 ## Strategy
 
