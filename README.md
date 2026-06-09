@@ -4,7 +4,10 @@ This Python project evaluates a long only Apple stock trading strategy. It uses
 daily AAPL price data, runs a full historical backtest, saves the results, and
 then applies a walk forward out of sample test.
 
-This repository is a **SIMPLE** demo project.
+This repository is a **simple, lightweight demo project** for a short presentation about my interest in algorithmic trading. Readers who want to explore advanced algorithmic trading further may want to look into platforms such as MultiCharts or QuantConnect.
+
+
+
 
 The project uses `backtesting.py`, `yfinance`, `pandas`, `numpy`, and
 `matplotlib`.
@@ -110,7 +113,8 @@ The process moves forward one year at a time:
 2016 to 2018 is used as the in sample period, then 2019 is tested out of sample.
 ```
 
-As this is a **simple** demo, I want to keep it simple. That is why I have chosen to conduct only a Walk Forward Test and not a Walk Forward Analysis, which also includes Walk Forward Optimization.
+As this is a simple demo, I want to keep it easy to understand. That is why I have chosen to conduct only a walk forward test and not a full walk forward analysis, which would also include walk forward optimization.
+
 
 
 
